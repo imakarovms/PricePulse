@@ -10,7 +10,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'tracker',
+
 ]
+
+SECRET_KEY = 'your-secret-key-here-keep-it-safe-in-prod'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -43,7 +49,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'pricepulse.wsgi.application'
 
 # Database — будет переопределено в local.py / prod.py
-DATABASES = {}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pricepulse',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
