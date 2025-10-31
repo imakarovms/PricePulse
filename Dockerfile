@@ -1,31 +1,23 @@
-# Dockerfile
+FROM python:3.11-slim
 
-# Берем готовую основу: Python 3.11 на упрощенной системе Linux
-FROM python:3.11-slim-bookworm
-
-# Говорим Python не создавать временные файлы (.pyc) - чтобы не захламлять контейнер
-ENV PYTHONDONTWRITEBYTECODE 1
-
-# Говорим Python сразу показывать все сообщения в консоли (без задержек)
-ENV PYTHONUNBUFFERED 1
-
-# Создаем папку /app внутри контейнера и переходим в нее
-# Это как создать рабочую папку на новом компьютере
 WORKDIR /app
 
-# Копируем файл с зависимостями (список что нужно установить)
-COPY requirements.txt .
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем все нужные библиотеки из requirements.txt
-# Флаг --no-cache-dir говорит не сохранять временные файлы установки
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем ВСЕ файлы из нашей текущей папки в папку /app контейнера
+# Copy project files
 COPY . .
 
-# Сообщаем что наше приложение будет работать на порту 8000
+# Create necessary directories
+RUN mkdir -p /app/logs
+
 EXPOSE 8000
 
-# Самая главная команда - что запускать когда контейнер стартует
-# Запускаем Django-сервер так, чтобы он был доступен снаружи
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

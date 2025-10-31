@@ -1,30 +1,61 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: pricepulse
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pricepulse_db
+      POSTGRES_USER: pricepulse_user
+      POSTGRES_PASSWORD: pricepulse_password
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
-  backend:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
     build: .
-    user: "1000:1000"
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
     depends_on:
       - db
+      - redis
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/pricepulse
+      - DEBUG=1
+      - DATABASE_URL=postgresql://pricepulse_user:pricepulse_password@db:5432/pricepulse_db
+      - REDIS_URL=redis://redis:6379/0
+
+  celery:
+    build: .
+    command: celery -A pricepulse worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgresql://pricepulse_user:pricepulse_password@db:5432/pricepulse_db
+      - REDIS_URL=redis://redis:6379/0
+
+  celery-beat:
+    build: .
+    command: celery -A pricepulse beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgresql://pricepulse_user:pricepulse_password@db:5432/pricepulse_db
+      - REDIS_URL=redis://redis:6379/0
 
 volumes:
   postgres_data:
