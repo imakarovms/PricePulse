@@ -32,7 +32,7 @@ class TrackedProductViewSet(viewsets.ModelViewSet):
             
             # Get parser and parse the product
             parser = get_parser(url)
-            parsed_data = parser(url)
+            parsed_data = parser.get_data()  
             
             if not parsed_data.get('price'):
                 return Response(

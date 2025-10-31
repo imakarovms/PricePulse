@@ -1,9 +1,10 @@
-from .ozon import parse_ozon
+# tracker/parsers/__init__.py
+from .creamshop import CreamshopParser
+from .base_parser import BaseParser
 
-
-def get_parser(url):
+def get_parser(url: str) -> BaseParser:
     """Factory function to get appropriate parser based on URL"""
-    if "ozon.ru" in url:
-        return parse_ozon
+    if "creamshop.ru" in url:
+        return CreamshopParser(url)
     else:
-        raise ValueError("Unsupported store URL")
+        raise ValueError(f"Unsupported store URL: {url}")

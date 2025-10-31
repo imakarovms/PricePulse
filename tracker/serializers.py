@@ -15,7 +15,7 @@ class TrackedProductSerializer(serializers.ModelSerializer):
         """Validate that URL is from supported stores"""
         supported_stores = [
             'ozon.ru', 'wildberries.ru', 'dns-shop.ru', 
-            'citilink.ru', 'mvideo.ru'
+            'citilink.ru', 'mvideo.ru','creamshop.ru'
         ]
         
         if not any(store in value for store in supported_stores):

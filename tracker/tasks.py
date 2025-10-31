@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from .models import TrackedProduct, PriceAlert
-from .parsers import get_parser
+from tracker.parsers import get_parser
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ def update_product_price(product_id):
         
         # Get parser and parse current data
         parser = get_parser(product.url)
-        data = parser(product.url)
+        data = parser.get_data()
         
         new_price = data.get('price')
         if new_price is None:
@@ -59,63 +59,14 @@ def update_product_price(product_id):
 
 @shared_task
 def check_all_prices():
-    """Check prices for all tracked products"""
     products = TrackedProduct.objects.all()
-    updated_count = 0
-    
+    scheduled_count = 0
     for product in products:
         try:
-            result = update_product_price.delay(product.id)
-            if result:
-                updated_count += 1
+            update_product_price.delay(product.id)
+            scheduled_count += 1
         except Exception as e:
             logger.error(f"Failed to schedule update for product {product.id}: {str(e)}")
-    
-    logger.info(f"Scheduled price updates for {updated_count} products")
-    return updated_count
+    logger.info(f"Scheduled price updates for {scheduled_count} products")
+    return scheduled_count
 
-@shared_task
-def send_price_drop_alert(alert_id, old_price, new_price):
-    """Send email notification for price drop"""
-    try:
-        alert = PriceAlert.objects.get(id=alert_id)
-        product = alert.product
-        user = alert.user
-        
-        subject = f'Price Drop Alert: {product.title}'
-        message = f"""
-        Hello {user.username},
-        
-        Good news! The price of '{product.title}' has dropped!
-        
-        Previous price: {old_price}₽
-        New price: {new_price}₽
-        Your target price: {alert.target_price}₽
-        
-        Product URL: {product.url}
-        
-        Happy shopping!
-        PricePulse Team
-        """
-        
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [user.email],
-            fail_silently=False,
-        )
-        
-        # Deactivate the alert after sending
-        alert.is_active = False
-        alert.save()
-        
-        logger.info(f"Sent price drop alert to {user.email} for product {product.id}")
-        return True
-        
-    except PriceAlert.DoesNotExist:
-        logger.error(f"Price alert {alert_id} not found")
-        return False
-    except Exception as e:
-        logger.error(f"Error sending price drop alert {alert_id}: {str(e)}")
-        return False
