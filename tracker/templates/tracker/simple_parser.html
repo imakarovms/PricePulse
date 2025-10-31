@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>PricePulse — Парсер Creamshop</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        input[type="url"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; }
+        .error { color: red; }
+        .price { font-size: 1.2em; font-weight: bold; color: #28a745; }
+    </style>
+</head>
+<body>
+    <h1>🔍 PricePulse — Парсер Creamshop.ru</h1>
+    <form id="parse-form">
+        <label for="url">Ссылка на товар (только creamshop.ru):</label>
+        <input type="url" id="url" name="url" required placeholder="https://creamshop.ru/...">
+        <button type="submit">Получить данные</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('parse-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('url').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Загрузка...</p>';
+
+            const res = await fetch('/parse/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ url })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                resultDiv.innerHTML = `
+                    <div class="result">
+                        <h3>${data.title}</h3>
+                        <p><strong>Бренд:</strong> ${data.brand}</p>
+                        <p><strong>Цена:</strong> <span class="price">${data.current_price} ₽</span></p>
+                        <p><strong>В наличии:</strong> ${data.in_stock ? 'Да' : 'Нет'}</p>
+                        <p><a href="${data.url}" target="_blank">Открыть на сайте</a></p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `<p class="error">❌ ${data.error}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

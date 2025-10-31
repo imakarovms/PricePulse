@@ -8,6 +8,10 @@ from .models import TrackedProduct, PriceAlert
 from .serializers import TrackedProductSerializer, PriceAlertSerializer
 from .parsers import get_parser
 from .tasks import update_product_price
+from django.shortcuts import render
+from django.http import JsonResponse
+from .parsers import get_parser
+from urllib.parse import urlparse
 
 class TrackedProductViewSet(viewsets.ModelViewSet):
     serializer_class = TrackedProductSerializer
@@ -99,3 +103,34 @@ class PriceAlertViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+def simple_parser_view(request):
+    if request.method == "POST":
+        url = request.POST.get("url", "").strip()
+        
+        # Валидация URL
+        if not url:
+            return JsonResponse({"error": "URL is required"}, status=400)
+        
+        parsed = urlparse(url)
+        if parsed.netloc != "creamshop.ru":
+            return JsonResponse({"error": "Only creamshop.ru URLs are supported"}, status=400)
+
+        try:
+            parser = get_parser(url)
+            data = parser.get_data()
+            return JsonResponse({
+                "success": True,
+                "title": data["title"],
+                "brand": data["brand"],
+                "current_price": data["price"],
+                "url": url,
+                "in_stock": data["in_stock"]
+            })
+        except Exception as e:
+            return JsonResponse({"error": f"Parsing failed: {str(e)}"}, status=500)
+
+    # GET — отображаем форму
+    return render(request, "tracker/simple_parser.html")
+
