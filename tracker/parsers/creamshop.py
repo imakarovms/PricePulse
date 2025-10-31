@@ -5,7 +5,7 @@ import re
 
 class CreamshopParser(BaseParser):
     def parse_price(self) -> float:
-        html = self.get_html(self.url)  # ← ИСПРАВЛЕНО
+        html = self.get_html(self.url) 
         soup = BeautifulSoup(html, 'html.parser')
         price_element = soup.find('span', class_='detail__price')
         if not price_element:
@@ -19,7 +19,7 @@ class CreamshopParser(BaseParser):
             raise ValueError(f"Could not parse price from '{price_text}': {e}")
 
     def get_data(self) -> dict:
-        html = self.get_html(self.url)  # ← ИСПРАВЛЕНО
+        html = self.get_html(self.url)  
         soup = BeautifulSoup(html, 'html.parser')
 
         title_elem = soup.find('h1', class_='detail__title')

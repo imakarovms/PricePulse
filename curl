@@ -1,0 +1,26 @@
+curl -X POST http://localhost:8000/api/tracked-products/ \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxOTEzNTc4LCJpYXQiOjE3NjE5MDk5NzgsImp0aSI6ImUzODM4ZDVjMjVjNjRlMGQ4ODdiODBlMzFmNDZkZmE5IiwidXNlcl9pZCI6IjEifQ.OAb7l_1w5l18PRCr_knCdBSEcg4_W9EAqxkP9IXPpD0" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://creamshop.ru/store/shoes/botinki/hiker-black/",
+    "target_price": 9000.00,
+    "store": "creamshop"
+  }'
+
+
+curl -X POST http://localhost:8000/api/tracked-products/ \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxOTA4MjYwLCJpYXQiOjE3NjE5MDQ2NjAsImp0aSI6IjhhMWRmNzk5NzAxNTQ0Y2RiMmFlNjAyNTI0YjgyZTE1IiwidXNlcl9pZCI6IjEifQ.vVvY14E2TiaSNDy-3pk8hlsBXYnamjuanHqGRT2lsFE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://creamshop.ru/store/clothing/bryuki/skatepants-grey/",
+    "target_price": 9000.00,
+    "store": "creamshop"
+  }'
+
+
+
+curl -X POST http://localhost:8000/api/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "omakson", "password": "omakson123"}'
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxOTEzNTc4LCJpYXQiOjE3NjE5MDk5NzgsImp0aSI6ImUzODM4ZDVjMjVjNjRlMGQ4ODdiODBlMzFmNDZkZmE5IiwidXNlcl9pZCI6IjEifQ.OAb7l_1w5l18PRCr_knCdBSEcg4_W9EAqxkP9IXPpD0

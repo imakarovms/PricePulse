@@ -8,9 +8,9 @@ import json
 @receiver(post_save, sender=TrackedProduct)
 def create_or_update_periodic_task(sender, instance, created, **kwargs):
     if created:
-        # Создаём интервал: каждые 60 минут
+        # Создаём интервал: каждые N минут
         schedule, _ = IntervalSchedule.objects.get_or_create(
-            every=60,  # ← измените на нужное количество минут
+            every=5,  # ← N минут
             period=IntervalSchedule.MINUTES,
         )
 
